@@ -5,11 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MedAtlas — Visor Anatómico Educativo</title>
 <style>
-  /* ============================================================
-     ESTILOS GLOBALES — Modo oscuro estilo estación de radiología
-     ============================================================ */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: #0a0c0f;
@@ -17,16 +13,12 @@
     height: 100vh;
     overflow: hidden;
   }
-
-  /* Grid principal: barra superior | sidebar + visor | barra inferior */
   #app {
     display: grid;
     grid-template-columns: 260px 1fr;
     grid-template-rows: 48px 1fr 80px;
     height: 100vh;
   }
-
-  /* ---- BARRA SUPERIOR ---- */
   #topbar {
     grid-column: 1 / -1;
     background: #111418;
@@ -57,18 +49,12 @@
     background: #2a7a4a;
     margin-left: auto;
   }
-  #status-text { font-size: 11px; color: #3a5a7a; }
-
-  /* ---- BARRA LATERAL ---- */
   #sidebar {
     background: #0d1117;
     border-right: 1px solid #1a2030;
     overflow-y: auto;
     padding: 12px 0;
   }
-  #sidebar::-webkit-scrollbar { width: 4px; }
-  #sidebar::-webkit-scrollbar-thumb { background: #2a3545; border-radius: 2px; }
-
   .sidebar-title {
     padding: 8px 14px 12px;
     font-size: 10px;
@@ -78,10 +64,7 @@
     border-bottom: 1px solid #141c28;
     margin-bottom: 8px;
   }
-
-  /* Grupo de sistema (ej: Sistema Nervioso) */
   .sys-group { margin-bottom: 4px; }
-
   .sys-header {
     display: flex;
     align-items: center;
@@ -89,34 +72,19 @@
     padding: 8px 14px;
     cursor: pointer;
     font-size: 12px;
-    font-weight: 500;
     color: #8a9bb0;
     text-transform: uppercase;
-    letter-spacing: .06em;
     user-select: none;
-    transition: color .15s;
   }
-  .sys-header:hover { color: #c0cad8; }
-  .sys-icon { font-size: 14px; }
-  .sys-arrow {
-    margin-left: auto;
-    font-size: 10px;
-    transition: transform .2s;
-    display: inline-block;
-  }
+  .sys-arrow { margin-left: auto; font-size: 10px; transition: transform .2s; }
   .sys-header.open .sys-arrow { transform: rotate(90deg); }
-
-  /* Lista de series dentro de un sistema */
   .series-list { display: none; }
   .series-list.open { display: block; }
-
   .series-item {
     padding: 7px 14px 7px 36px;
     font-size: 12px;
     color: #6a7b8e;
     cursor: pointer;
-    border-left: 2px solid transparent;
-    transition: all .15s;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -124,111 +92,49 @@
   .series-item:hover { color: #a0b4c8; background: #111820; }
   .series-item.active {
     color: #7ab3e0;
-    border-left-color: #3a7abf;
+    border-left: 2px solid #3a7abf;
     background: #0e1a28;
   }
-  .slice-badge {
-    font-size: 10px;
-    padding: 1px 6px;
-    border-radius: 2px;
-    background: #1a2535;
-    color: #4a7a9b;
-    margin-left: auto;
-  }
-
-  /* ---- VISOR CENTRAL ---- */
   #viewer {
     background: #000;
     position: relative;
-    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-
-  #img-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   #main-img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
     display: none;
   }
-
-  /* Capa de etiquetas (overlay) — se superpone sobre la imagen */
   #overlay {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    pointer-events: none; /* No intercepta el scroll del mouse */
+    pointer-events: none;
   }
-
-  /* Cada etiqueta anatómica individual */
   .label-dot {
     position: absolute;
     transform: translate(-50%, -50%);
-    pointer-events: all;
   }
   .label-dot .dot {
     width: 8px; height: 8px;
     border-radius: 50%;
     background: #00d4ff;
     border: 1px solid #fff;
-    box-shadow: 0 0 0 2px rgba(0, 212, 255, .3);
-  }
-  .label-dot .label-line {
-    position: absolute;
-    left: 8px; top: 50%;
-    width: 20px; height: 1px;
-    background: rgba(0, 212, 255, .5);
-    transform: translateY(-50%);
   }
   .label-dot .label-text {
     position: absolute;
-    left: 30px; top: 50%;
+    left: 20px; top: 50%;
     transform: translateY(-50%);
     white-space: nowrap;
     font-size: 11px;
-    font-weight: 500;
     color: #00d4ff;
     background: rgba(0, 0, 0, .8);
     padding: 2px 7px;
     border-radius: 3px;
-    border: 1px solid rgba(0, 212, 255, .4);
-    pointer-events: none;
   }
-  /* Etiquetas en el lado derecho se voltean */
-  .label-dot.flip .label-text {
-    left: auto;
-    right: 30px;
-  }
-  .label-dot.flip .label-line {
-    left: auto;
-    right: 8px;
-  }
-
-  /* Caja de información (esquina superior izquierda del visor) */
-  #info-overlay {
-    position: absolute;
-    top: 12px; left: 12px;
-    background: rgba(0, 0, 0, .7);
-    border: 1px solid #1e2a38;
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 11px;
-    line-height: 1.9;
-    color: #7ab3e0;
-    pointer-events: none;
-  }
-
-  /* Contador de cortes (esquina inferior derecha del visor) */
   #slice-counter {
     position: absolute;
     bottom: 12px; right: 12px;
@@ -237,47 +143,7 @@
     background: rgba(0, 0, 0, .65);
     padding: 4px 10px;
     border-radius: 3px;
-    border: 1px solid #1e2a38;
-    font-family: monospace;
   }
-
-  /* Cruceta central */
-  #crosshair {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 20px; height: 20px;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    opacity: .25;
-  }
-  #crosshair::before, #crosshair::after {
-    content: '';
-    position: absolute;
-    background: #fff;
-  }
-  #crosshair::before { width: 1px; height: 100%; left: 50%; transform: translateX(-50%); }
-  #crosshair::after  { width: 100%; height: 1px; top: 50%; transform: translateY(-50%); }
-
-  /* Estado de carga */
-  #loading {
-    position: absolute; inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    color: #4a6070;
-  }
-  .spinner {
-    width: 36px; height: 36px;
-    border: 2px solid #1a2535;
-    border-top-color: #3a7abf;
-    border-radius: 50%;
-    animation: spin .8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ---- BARRA DE CONTROLES INFERIOR ---- */
   #controlbar {
     grid-column: 1 / -1;
     background: #0d1117;
@@ -287,307 +153,62 @@
     padding: 0 20px;
     gap: 16px;
   }
-  .ctrl-label {
-    font-size: 11px;
-    color: #4a6070;
-    white-space: nowrap;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-  }
-  #slice-slider {
-    flex: 1;
-    accent-color: #3a7abf;
-    cursor: pointer;
-  }
-  #slice-display {
-    font-size: 13px;
-    font-weight: 500;
-    color: #7ab3e0;
-    min-width: 70px;
-    text-align: center;
-    font-family: monospace;
-  }
-  .ctrl-divider { width: 1px; height: 36px; background: #1a2030; }
-
-  input[type="range"] {
-    height: 4px;
-    cursor: pointer;
-  }
-  #brightness-slider { width: 90px; accent-color: #5a8a5a; }
-  #contrast-slider   { width: 90px; accent-color: #9a7a4a; }
-
+  #slice-slider { flex: 1; accent-color: #3a7abf; }
   #toggle-labels {
     padding: 8px 18px;
     font-size: 12px;
-    border: 1px solid #2a4a6a;
-    border-radius: 4px;
     background: #0e1a28;
     color: #5a9acf;
+    border: 1px solid #2a4a6a;
+    border-radius: 4px;
     cursor: pointer;
-    transition: all .15s;
-    white-space: nowrap;
-    font-family: inherit;
   }
-  #toggle-labels:hover { background: #152235; color: #7ab3e0; border-color: #3a6a9a; }
-  #toggle-labels.active { background: #1a3a5a; color: #00d4ff; border-color: #00d4ff; }
-
-  /* Pantalla de bienvenida cuando no hay serie seleccionada */
-  #welcome {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    height: 100%;
-    color: #2a3a4a;
-    font-size: 13px;
-  }
-  #welcome svg { opacity: .3; }
+  #toggle-labels.active { color: #00d4ff; border-color: #00d4ff; }
 </style>
 </head>
 <body>
 
 <div id="app">
-
-  <!-- ======== BARRA SUPERIOR ======== -->
   <div id="topbar">
-    <!-- Ícono SVG de estetoscopio simplificado -->
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3a7abf" stroke-width="1.5">
-      <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/>
-      <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/>
-      <circle cx="20" cy="10" r="2"/>
-    </svg>
-    <h1>MedAtlas — Visor Anatómico</h1>
-    <div class="tb-badge">EDUCATIVO</div>
+    <h1>MedAtlas</h1>
     <div class="tb-badge" id="modality-badge">—</div>
     <div id="status-dot"></div>
-    <span id="status-text">Seleccioná una serie</span>
   </div>
 
-  <!-- ======== BARRA LATERAL ======== -->
   <div id="sidebar">
     <div class="sidebar-title">Índice Anatómico</div>
-    <!-- El menú se construye dinámicamente con JavaScript -->
   </div>
 
-  <!-- ======== VISOR CENTRAL ======== -->
   <div id="viewer">
-    <div id="img-container">
-
-      <!-- Pantalla de bienvenida inicial -->
-      <div id="welcome">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <path d="M9 9h6M9 12h6M9 15h4"/>
-        </svg>
-        <span>Seleccioná una serie en el panel izquierdo</span>
-        <span style="font-size:11px; color:#1e3040">Usá el scroll del mouse o el slider para navegar cortes</span>
-      </div>
-
-      <!-- Spinner de carga -->
-      <div id="loading" style="display:none">
-        <div class="spinner"></div>
-        <span style="font-size:12px">Cargando imagen...</span>
-      </div>
-
-      <!-- Imagen principal -->
-      <img id="main-img" alt="Imagen médica del corte actual" />
-
-      <!-- Capa de etiquetas anatómicas (overlay) -->
-      <div id="overlay"></div>
-
-      <!-- Cruceta de referencia central -->
-      <div id="crosshair" aria-hidden="true"></div>
-
-      <!-- Caja de metadatos (esquina superior izquierda) -->
-      <div id="info-overlay" style="display:none"></div>
-
-      <!-- Contador de corte (esquina inferior derecha) -->
-      <div id="slice-counter" style="display:none"></div>
-
-    </div>
+    <img id="main-img" />
+    <div id="overlay"></div>
+    <div id="slice-counter"></div>
   </div>
 
-  <!-- ======== BARRA DE CONTROLES INFERIOR ======== -->
   <div id="controlbar">
-    <span class="ctrl-label">Corte</span>
-    <input type="range" id="slice-slider" min="1" max="20" value="1" step="1"
-           aria-label="Selector de corte" disabled />
-    <span id="slice-display" style="font-size:13px;color:#3a5a7a">— / —</span>
-    <div class="ctrl-divider"></div>
-    <span class="ctrl-label">Brillo</span>
-    <input type="range" id="brightness-slider" min="50" max="200" value="95" step="1"
-           aria-label="Brillo de imagen" />
-    <span class="ctrl-label">Contraste</span>
-    <input type="range" id="contrast-slider" min="50" max="300" value="105" step="1"
-           aria-label="Contraste de imagen" />
-    <div class="ctrl-divider"></div>
-    <button id="toggle-labels" aria-pressed="false">
-      &#x1F3F7; Toggle Labels
-    </button>
+    <input type="range" id="slice-slider" min="1" value="1" disabled />
+    <button id="toggle-labels">Toggle Labels</button>
   </div>
-
-</div><!-- fin #app -->
-
+</div>
 
 <script>
-/* ============================================================
-   CONFIGURACIÓN PRINCIPAL
-   ============================================================
-   
-   CÓMO PERSONALIZAR ESTE ARCHIVO:
-   
-   1. IMÁGENES: Reemplazá cada URL dentro de los arrays "slices"
-      por la ruta a tus imágenes reales, por ejemplo:
-        slices: ['imagenes/tc_torax_001.jpg', 'imagenes/tc_torax_002.jpg', ...]
-      
-      O si las tenés en una carpeta numerada:
-        slices: Array.from({length: 22}, (_, i) => `imagenes/torax/corte_${String(i+1).padStart(3,'0')}.jpg`)
-   
-   2. ETIQUETAS: Cada etiqueta tiene coordenadas x e y en porcentaje
-      (0 = borde izquierdo/superior, 100 = borde derecho/inferior).
-      Ajustalas para que el punto caiga sobre la estructura correcta.
-      
-   3. NÚMERO DE CORTES: Cambiá "totalSlices" para que coincida con
-      la cantidad real de imágenes que tenés.
-   ============================================================ */
-
 const CONFIG = {
   systems: [
-    /* ==================== SISTEMA NERVIOSO CENTRAL ==================== */
     {
       id: 'snc',
       name: 'Sistema Nervioso Central',
       series: [
         {
-          id: 'snc-t1',
-          name: 'Resonancia T1',
-          modality: 'RM T1',
-          totalSlices: 18,
-          /* ► REEMPLAZÁ ESTAS URLs POR TUS IMÁGENES REALES */
-          slices: Array.from({length: 18}, (_, i) =>
-            `https://picsum.photos/seed/snc-t1-${i+1}/800/800`
-          ),
-          /* ► AJUSTÁ x e y (0–100%) para que los puntos caigan sobre cada estructura */
-          labels: [
-            { id: 'cortex',   name: 'Corteza cerebral',     x: 30, y: 22, slice: -1 },
-            { id: 'cc',       name: 'Cuerpo calloso',        x: 50, y: 35, slice: -1 },
-            { id: 'talamus',  name: 'Tálamo',                x: 50, y: 48, slice: -1 },
-            { id: 'cerebelo', name: 'Cerebelo',              x: 60, y: 72, slice: -1 },
-            { id: 'ventri',   name: 'Ventrículo lateral',    x: 42, y: 40, slice: -1 }
-          ]
-        },
-        {
-          id: 'snc-t2',
-          name: 'Resonancia T2',
-          modality: 'RM T2',
-          totalSlices: 18,
-          slices: Array.from({length: 18}, (_, i) =>
-            `https://picsum.photos/seed/snc-t2-${i+10}/800/800`
+          id: 'snc-mri',
+          name: 'Resonancia Magnética',
+          modality: 'RM Cerebro',
+          totalSlices: 30,
+          slices: Array.from({length: 30}, (_, i) => 
+            `img/MRI/slice_${String(i + 1).padStart(3, '0')}.png`
           ),
           labels: [
-            { id: 'lcr',       name: 'LCR (hiperintenso)',   x: 50, y: 42, slice: -1 },
-            { id: 'sustblanca',name: 'Sustancia blanca',     x: 35, y: 30, slice: -1 },
-            { id: 'sustgris',  name: 'Sustancia gris',       x: 28, y: 22, slice: -1 },
-            { id: 'tronco',    name: 'Tronco encefálico',    x: 52, y: 62, slice: -1 }
-          ]
-        },
-        {
-          id: 'snc-tac',
-          name: 'Tomografía',
-          modality: 'TC Cerebro',
-          totalSlices: 18,
-          slices: Array.from({length: 18}, (_, i) =>
-            `https://picsum.photos/seed/snc-tc-${i+5}/800/800`
-          ),
-          labels: [
-            { id: 'calv',  name: 'Calvaria',                  x: 50, y: 10, slice: -1 },
-            { id: 'senos', name: 'Senos paranasales',          x: 50, y: 70, slice: -1 },
-            { id: 'hemorr',name: 'Hiperdensidad (hemorragia?)',x: 38, y: 35, slice: -1 }
-          ]
-        }
-      ]
-    },
-
-    /* ==================== TÓRAX ==================== */
-    {
-      id: 'torax',
-      name: 'Tórax',
-      series: [
-        {
-          id: 'torax-pulmon',
-          name: 'TC Ventana Pulmón',
-          modality: 'TC Tórax — Pulmón',
-          totalSlices: 22,
-          slices: Array.from({length: 22}, (_, i) =>
-            `https://picsum.photos/seed/torax-p-${i+1}/800/800`
-          ),
-          labels: [
-            { id: 'pulmd',  name: 'Pulmón derecho',      x: 25, y: 50, slice: -1 },
-            { id: 'pulmi',  name: 'Pulmón izquierdo',     x: 75, y: 50, slice: -1 },
-            { id: 'traq',   name: 'Tráquea',              x: 50, y: 25, slice: -1 },
-            { id: 'bronq',  name: 'Bronquio principal',   x: 42, y: 38, slice: -1 },
-            { id: 'pleu',   name: 'Pleura',               x: 15, y: 60, slice: -1 }
-          ]
-        },
-        {
-          id: 'torax-mediastino',
-          name: 'TC Ventana Mediastino',
-          modality: 'TC Tórax — Mediastino',
-          totalSlices: 22,
-          /* Nota: mismo totalSlices que Ventana Pulmón — la sincronización
-             de cortes funciona automáticamente gracias a esto */
-          slices: Array.from({length: 22}, (_, i) =>
-            `https://picsum.photos/seed/torax-m-${i+8}/800/800`
-          ),
-          labels: [
-            { id: 'aorta',   name: 'Aorta ascendente',     x: 55, y: 42, slice: -1 },
-            { id: 'aortad',  name: 'Aorta descendente',     x: 65, y: 55, slice: -1 },
-            { id: 'ap',      name: 'Arteria pulmonar',       x: 45, y: 40, slice: -1 },
-            { id: 'corazon', name: 'Corazón',               x: 50, y: 58, slice: -1 },
-            { id: 'esofago', name: 'Esófago',               x: 58, y: 35, slice: -1 },
-            { id: 'vcsi',    name: 'Vena cava superior',    x: 52, y: 28, slice: -1 }
-          ]
-        }
-      ]
-    },
-
-    /* ==================== ABDOMEN ==================== */
-    {
-      id: 'abdomen',
-      name: 'Abdomen',
-      series: [
-        {
-          id: 'abd-arterial',
-          name: 'TC Fase Arterial',
-          modality: 'TC Abdomen — Arterial',
-          totalSlices: 20,
-          slices: Array.from({length: 20}, (_, i) =>
-            `https://picsum.photos/seed/abd-a-${i+3}/800/800`
-          ),
-          labels: [
-            { id: 'higado',      name: 'Hígado',               x: 30, y: 40, slice: -1 },
-            { id: 'bazo',        name: 'Bazo',                 x: 72, y: 42, slice: -1 },
-            { id: 'ao-abd',      name: 'Aorta abdominal',      x: 52, y: 55, slice: -1 },
-            { id: 'troncoceli',  name: 'Tronco celíaco',        x: 50, y: 48, slice: -1 },
-            { id: 'rend',        name: 'Riñón derecho',        x: 28, y: 55, slice: -1 },
-            { id: 'reni',        name: 'Riñón izquierdo',      x: 72, y: 55, slice: -1 }
-          ]
-        },
-        {
-          id: 'abd-portal',
-          name: 'TC Fase Portal',
-          modality: 'TC Abdomen — Portal',
-          totalSlices: 20,
-          slices: Array.from({length: 20}, (_, i) =>
-            `https://picsum.photos/seed/abd-p-${i+15}/800/800`
-          ),
-          labels: [
-            { id: 'vp',        name: 'Vena porta',            x: 48, y: 45, slice: -1 },
-            { id: 'pancreas',  name: 'Páncreas',              x: 50, y: 52, slice: -1 },
-            { id: 'vmd',       name: 'V. mesentérica',        x: 52, y: 60, slice: -1 },
-            { id: 'intestino', name: 'Intestino delgado',     x: 50, y: 65, slice: -1 },
-            { id: 'colon',     name: 'Colon',                 x: 22, y: 68, slice: -1 }
+            { name: 'Ventrículo lateral', x: 45, y: 40, slice: 15 },
+            { name: 'Corteza cerebral', x: 20, y: 30, slice: -1 }
           ]
         }
       ]
@@ -595,304 +216,91 @@ const CONFIG = {
   ]
 };
 
-/* ============================================================
-   ESTADO DE LA APLICACIÓN
-   No modificar manualmente — se actualiza con cada acción.
-   ============================================================ */
-const state = {
-  activeSeries: null,   // Objeto de la serie activa
-  currentSlice: 1,      // Número de corte actual (1-based)
-  labelsVisible: false, // Si las etiquetas están visibles
-  brightness: 95,       // Valor de brillo (50–200)
-  contrast: 105         // Valor de contraste (50–300)
-};
+const state = { activeSeries: null, currentSlice: 1, labelsVisible: false };
 
-/* Referencias a elementos del DOM */
-const sidebar         = document.getElementById('sidebar');
-const mainImg         = document.getElementById('main-img');
-const overlay         = document.getElementById('overlay');
-const infoBox         = document.getElementById('info-overlay');
-const sliceCount      = document.getElementById('slice-counter');
-const sliceSlider     = document.getElementById('slice-slider');
-const sliceDisp       = document.getElementById('slice-display');
-const toggleBtn       = document.getElementById('toggle-labels');
-const loadingEl       = document.getElementById('loading');
-const welcomeEl       = document.getElementById('welcome');
-const modBadge        = document.getElementById('modality-badge');
-const statusText      = document.getElementById('status-text');
-const brightnessEl    = document.getElementById('brightness-slider');
-const contrastEl      = document.getElementById('contrast-slider');
+const sidebar = document.getElementById('sidebar');
+const mainImg = document.getElementById('main-img');
+const overlay = document.getElementById('overlay');
+const sliceCount = document.getElementById('slice-counter');
+const sliceSlider = document.getElementById('slice-slider');
+const toggleBtn = document.getElementById('toggle-labels');
+const modBadge = document.getElementById('modality-badge');
 
-
-/* ============================================================
-   CONSTRUCCIÓN DEL MENÚ LATERAL
-   ============================================================ */
 function buildSidebar() {
   CONFIG.systems.forEach(sys => {
     const group = document.createElement('div');
     group.className = 'sys-group';
-
-    // Cabecera del sistema (desplegable)
     const header = document.createElement('div');
-    header.className = 'sys-header';
-    header.setAttribute('role', 'button');
-    header.setAttribute('aria-expanded', 'false');
-    header.innerHTML = `
-      <span class="sys-icon">&#9632;</span>
-      <span>${sys.name}</span>
-      <span class="sys-arrow">&#9658;</span>
-    `;
-
-    // Lista de series dentro del sistema
+    header.className = 'sys-header open';
+    header.innerHTML = `<span>${sys.name}</span><span class="sys-arrow">&#9658;</span>`;
+    
     const list = document.createElement('div');
-    list.className = 'series-list';
-    list.id = `list-${sys.id}`;
-
+    list.className = 'series-list open';
+    
     sys.series.forEach(ser => {
       const item = document.createElement('div');
       item.className = 'series-item';
-      item.dataset.seriesId = ser.id;
-      item.innerHTML = `
-        <span style="font-size:10px;opacity:.6">&#9679;</span>
-        <span>${ser.name}</span>
-        <span class="slice-badge">${ser.totalSlices}</span>
-      `;
-      item.addEventListener('click', () => selectSeries(ser.id));
+      item.innerHTML = `<span>${ser.name}</span>`;
+      item.onclick = () => selectSeries(ser);
       list.appendChild(item);
     });
-
-    // Toggle del grupo al hacer clic en la cabecera
-    header.addEventListener('click', () => {
-      const isOpen = list.classList.contains('open');
-      // Cierra todos los grupos
-      document.querySelectorAll('.series-list').forEach(l => l.classList.remove('open'));
-      document.querySelectorAll('.sys-header').forEach(h => {
-        h.classList.remove('open');
-        h.setAttribute('aria-expanded', 'false');
-      });
-      // Abre este si estaba cerrado
-      if (!isOpen) {
-        list.classList.add('open');
-        header.classList.add('open');
-        header.setAttribute('aria-expanded', 'true');
-      }
-    });
-
     group.appendChild(header);
     group.appendChild(list);
     sidebar.appendChild(group);
   });
 }
 
-
-/* ============================================================
-   SELECCIONAR UNA SERIE
-   ============================================================ */
-function selectSeries(seriesId) {
-  // Busca la serie en la configuración
-  let found = null;
-  CONFIG.systems.forEach(sys =>
-    sys.series.forEach(ser => { if (ser.id === seriesId) found = ser; })
-  );
-  if (!found) return;
-
-  // Marca visualmente el ítem activo en el sidebar
-  document.querySelectorAll('.series-item').forEach(el => {
-    el.classList.toggle('active', el.dataset.seriesId === seriesId);
-  });
-
-  /* SINCRONIZACIÓN DE CORTE:
-     Si ya había una serie activa, conserva el número de corte actual.
-     Si el nuevo máximo es menor, ajusta al máximo disponible. */
-  const prevSlice = state.currentSlice;
-  state.activeSeries = found;
-  const clamped = Math.min(prevSlice, found.totalSlices);
-  state.currentSlice = clamped;
-
-  // Actualiza el slider
-  sliceSlider.max = found.totalSlices;
-  sliceSlider.value = state.currentSlice;
+function selectSeries(ser) {
+  state.activeSeries = ser;
+  state.currentSlice = 1;
+  sliceSlider.max = ser.totalSlices;
+  sliceSlider.value = 1;
   sliceSlider.disabled = false;
-
-  // Actualiza el badge de modalidad
-  modBadge.textContent = found.modality;
-  statusText.textContent = found.name;
-
-  // Oculta la bienvenida
-  welcomeEl.style.display = 'none';
-  infoBox.style.display = 'block';
-  sliceCount.style.display = 'block';
-
-  loadSlice(state.currentSlice);
+  modBadge.textContent = ser.modality;
+  loadSlice(1);
 }
 
-
-/* ============================================================
-   CARGAR UN CORTE ESPECÍFICO
-   ============================================================ */
 function loadSlice(n) {
   if (!state.activeSeries) return;
-
-  const ser = state.activeSeries;
-  // Clampea el índice para no salirse del array
-  const idx = Math.max(0, Math.min(n - 1, ser.slices.length - 1));
-  state.currentSlice = idx + 1;
-
-  // Actualiza controles
-  sliceSlider.value = state.currentSlice;
-  const label = `${state.currentSlice} / ${ser.totalSlices}`;
-  sliceDisp.textContent = label;
-  sliceCount.textContent = label;
-
-  // Muestra spinner, oculta imagen anterior
-  loadingEl.style.display = 'flex';
-  mainImg.style.display = 'none';
-  overlay.innerHTML = '';
-
-  // Carga la imagen
-  const img = new Image();
-  img.onload = () => {
-    mainImg.src = img.src;
-    mainImg.style.display = 'block';
-    loadingEl.style.display = 'none';
-    applyImageFilters();
-    updateInfoBox();
-    if (state.labelsVisible) renderLabels();
-  };
-  img.onerror = () => {
-    loadingEl.innerHTML = `
-      <div style="font-size:32px;opacity:.3">&#128444;</div>
-      <span style="font-size:11px;color:#6a4030">Imagen no disponible<br>
-      <span style="font-size:10px;color:#3a2520">${ser.slices[idx]}</span></span>
-    `;
-  };
-  img.src = ser.slices[idx];
+  state.currentSlice = n;
+  mainImg.src = state.activeSeries.slices[n - 1];
+  mainImg.style.display = 'block';
+  sliceCount.textContent = `${n} / ${state.activeSeries.totalSlices}`;
+  renderLabels();
 }
 
-
-/* ============================================================
-   FILTROS DE IMAGEN (BRILLO / CONTRASTE)
-   Simulan el "windowing" de las estaciones DICOM
-   ============================================================ */
-function applyImageFilters() {
-  mainImg.style.filter =
-    `brightness(${state.brightness / 100}) contrast(${state.contrast / 100})`;
-}
-
-
-/* ============================================================
-   RENDERIZAR ETIQUETAS ANATÓMICAS
-   ============================================================ */
 function renderLabels() {
   overlay.innerHTML = '';
-  if (!state.activeSeries || !state.labelsVisible) return;
-
+  if (!state.labelsVisible || !state.activeSeries) return;
   state.activeSeries.labels.forEach(lbl => {
-    // slice: -1 significa "visible en todos los cortes"
     if (lbl.slice !== -1 && lbl.slice !== state.currentSlice) return;
-
     const dot = document.createElement('div');
-    dot.className = 'label-dot' + (lbl.x > 62 ? ' flip' : '');
+    dot.className = 'label-dot';
     dot.style.left = lbl.x + '%';
-    dot.style.top  = lbl.y + '%';
-    dot.title = lbl.name;
-    dot.innerHTML = `
-      <div class="label-line" aria-hidden="true"></div>
-      <div class="dot" aria-hidden="true"></div>
-      <span class="label-text">${lbl.name}</span>
-    `;
+    dot.style.top = lbl.y + '%';
+    dot.innerHTML = `<div class="dot"></div><span class="label-text">${lbl.name}</span>`;
     overlay.appendChild(dot);
   });
 }
 
+sliceSlider.oninput = (e) => loadSlice(parseInt(e.target.value));
 
-/* ============================================================
-   CAJA DE INFORMACIÓN DEL VISOR (esquina superior izquierda)
-   ============================================================ */
-function updateInfoBox() {
-  if (!state.activeSeries) return;
-  const ser = state.activeSeries;
-  infoBox.innerHTML = `
-    <div style="color:#3a7abf;font-weight:600;margin-bottom:3px">${ser.modality}</div>
-    <div style="color:#7a9ab8">${ser.name}</div>
-    <div style="color:#3a5870;margin-top:4px;font-size:10px">
-      Corte ${state.currentSlice} / ${ser.totalSlices}
-    </div>
-    <div style="color:#2a4050;font-size:10px">
-      Brillo: ${state.brightness}% · Contraste: ${state.contrast}%
-    </div>
-  `;
-}
-
-
-/* ============================================================
-   EVENTOS DE CONTROL
-   ============================================================ */
-
-/* Slider de corte */
-sliceSlider.addEventListener('input', e => {
-  loadSlice(parseInt(e.target.value, 10));
-});
-
-/* Brillo */
-brightnessEl.addEventListener('input', e => {
-  state.brightness = parseInt(e.target.value, 10);
-  applyImageFilters();
-  updateInfoBox();
-});
-
-/* Contraste */
-contrastEl.addEventListener('input', e => {
-  state.contrast = parseInt(e.target.value, 10);
-  applyImageFilters();
-  updateInfoBox();
-});
-
-/* Botón Toggle Labels */
-toggleBtn.addEventListener('click', () => {
+toggleBtn.onclick = () => {
   state.labelsVisible = !state.labelsVisible;
-  toggleBtn.classList.toggle('active', state.labelsVisible);
-  toggleBtn.setAttribute('aria-pressed', String(state.labelsVisible));
-  if (state.labelsVisible) renderLabels();
-  else overlay.innerHTML = '';
-});
+  toggleBtn.classList.toggle('active');
+  renderLabels();
+};
 
-/* Scroll del mouse sobre el visor — navega entre cortes */
-document.getElementById('viewer').addEventListener('wheel', e => {
-  e.preventDefault();
+document.getElementById('viewer').onwheel = (e) => {
   if (!state.activeSeries) return;
-  const dir = e.deltaY > 0 ? 1 : -1;
-  const next = Math.max(1, Math.min(state.currentSlice + dir, state.activeSeries.totalSlices));
-  if (next !== state.currentSlice) loadSlice(next);
-}, { passive: false });
-
-/* Teclas de flecha — navegan entre cortes */
-document.addEventListener('keydown', e => {
-  if (!state.activeSeries) return;
-  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-    e.preventDefault();
-    loadSlice(Math.min(state.currentSlice + 1, state.activeSeries.totalSlices));
-  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-    e.preventDefault();
-    loadSlice(Math.max(state.currentSlice - 1, 1));
+  const next = state.currentSlice + (e.deltaY > 0 ? 1 : -1);
+  if (next >= 1 && next <= state.activeSeries.totalSlices) {
+    sliceSlider.value = next;
+    loadSlice(next);
   }
-});
+};
 
-
-/* ============================================================
-   INICIALIZACIÓN
-   ============================================================ */
 buildSidebar();
-
-// Abre el primer grupo del sidebar automáticamente
-const firstHeader = sidebar.querySelector('.sys-header');
-const firstList   = sidebar.querySelector('.series-list');
-if (firstHeader && firstList) {
-  firstHeader.classList.add('open');
-  firstHeader.setAttribute('aria-expanded', 'true');
-  firstList.classList.add('open');
-}
 </script>
-
 </body>
 </html>
